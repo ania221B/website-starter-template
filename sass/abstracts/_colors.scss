@@ -1,12 +1,13 @@
 $colors: (
   neutral: (
-    light: white,
-    normal: grey,
-    dark: black,
+    100: #ffffff,
+    200: #f8f8f8,
+    400: #5c5c5c,
+    900: #212121,
   ),
   primary: (
-    light: lightblue,
-    normal: blue,
-    dark: darkblue,
+    200: lightblue,
+    400: blue,
+    900: darkblue,
   ),
 );
