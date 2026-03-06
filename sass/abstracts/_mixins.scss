@@ -47,22 +47,52 @@
   }
 }
 
-@mixin mq($size) {
-  @if (map.has-key($breakpoints, $size)) {
-    $breakpoint: map.get($breakpoints, $size);
-    @media screen and (min-width: $breakpoint) {
-      @content;
+@function get-required($map, $key) {
+  @if (map.has-key($map, $key)) {
+    @return map.get($map, $key);
+  }
+  @error 'fluid-clamp(): #{$key} is missing from the #{$map} map.';
+}
+
+@mixin fluid-clamp(
+  $size-map,
+  $skip-second-range: false,
+  $property: padding-block
+) {
+  // Check map
+  @if $size-map == null or list.length(map.keys($size-map)) == 0 {
+    @error 'No map was passed into fluid-clamp(). Pass a map with small, medium, large,min-width, mid-width, max-width.';
+  }
+  // Extract required values
+  $small: get-required($size-map, small);
+  $medium: get-required($size-map, medium);
+
+  $min-width: get-required($size-map, min-width);
+  $mid-width: get-required($size-map, mid-width);
+
+  // First range
+  $slope1: calc(($medium - $small) / ($mid-width - $min-width));
+  $y-intercept1: $small - ($slope1 * $min-width);
+
+  --#{$property}: #{clamp(
+      #{$small}rem,
+      calc(#{($y-intercept1)}rem + #{($slope1 * 100)}vw),
+      #{$medium}rem
+    )};
+
+  // Optional second range
+  @if $skip-second-range != true {
+    $large: get-required($size-map, large);
+    $max-width: get-required($size-map, max-width);
+    @media (min-width: #{$mid-width}em) {
+      $slope2: calc(($large - $medium) / ($max-width - $mid-width));
+      $y-intercept2: $medium - ($slope2 * $mid-width);
+
+      --#{$property}: #{clamp(
+          #{$medium}rem,
+          calc(#{$y-intercept2}rem + #{$slope2 * 100}vw),
+          #{$large}rem
+        )};
     }
-  } @else if (meta.type-of($size) == number) {
-    @if (math.is-unitless($size)) {
-      @error 'The value #{$size} you provided has no unit';
-    } @else {
-      $breakpoint: $size;
-      @media screen and (min-width: $breakpoint) {
-        @content;
-      }
-    }
-  } @else {
-    @error 'The value #{$size} is not a key in the map. Use a key from the map or a numeric value with a unit';
   }
 }
