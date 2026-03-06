@@ -1,5 +1,7 @@
-import htmlPurge from 'vite-plugin-purgecss'
+import { defineConfig } from 'vite'
 
-export default {
-  plugins: [htmlPurge()]
-}
+// https://vitejs.dev/config/
+export default defineConfig({
+  base: '/website-starter-template/',
+  plugins: []
+})
